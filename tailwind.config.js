@@ -26,6 +26,8 @@ module.exports = {
           autumnRed: '#C34043',
           peachRed: '#FF5D62',
           roninYellow: '#FF9E3B',
+          oniViolet: '#957FB8',
+          katanaGray: '#717C7C',
         },
       },
     },

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import Feedback from '../Storage/feedback.json';
+import { Storage } from '../Storage/Storage';
 
 export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [displayArray, setDisplayArray] = useState<any[]>([]);
+  const [history, setHistory] = useState([]);
   const inputRef = useRef<any>(null);
+  const historyRef = useRef(0);
 
   function userFeedback(input?: string) {
     const user = (
@@ -17,33 +19,46 @@ export default function Home() {
         </span>
       </p>
     );
-
     return user;
   }
 
   function textColor() {
-    if (userInput === 'help' || userInput === 'banner') return '#98BB6C';
+    if (
+      userInput === 'help' ||
+      userInput === 'banner' ||
+      userInput === 'about' ||
+      userInput === 'projects' ||
+      userInput === 'github' ||
+      userInput === 'theme' ||
+      userInput === 'clear' ||
+      userInput === 'history'
+    )
+      return '#98BB6C';
     else return '#FF5D62';
   }
 
   function handleInput() {
-    switch (userInput) {
-      case 'banner':
-        displayFeedback(userInput);
-        break;
-      case 'help':
-        displayFeedback('help');
-        break;
-      case 'clear':
-        setDisplayArray([]);
-        break;
-      default:
-        setDisplayArray([
-          ...displayArray,
-          userFeedback(userInput),
-          <div>change this</div>,
-        ]);
-    }
+    const commands = [
+      'about',
+      'projects',
+      'history',
+      'github',
+      'theme',
+      'help',
+    ];
+    if (userInput === 'history')
+      return setDisplayArray([...displayArray, ...history]);
+    if (userInput === 'banner') return loadBanner();
+    if (userInput === 'clear') return setDisplayArray([]);
+    if (commands.includes(userInput)) displayFeedback(userInput);
+    else
+      setDisplayArray([
+        ...displayArray,
+        userFeedback(userInput),
+        <div className="text-kanagawa-katanaGray">
+          Command not found. For a list of commands, type 'help'
+        </div>,
+      ]);
   }
 
   useEffect(() => {
@@ -54,7 +69,7 @@ export default function Home() {
   function loadBanner() {
     const bannerArray = [userFeedback()];
 
-    Feedback.banner.map((line) => bannerArray.push(line));
+    Storage.banner.map((line) => bannerArray.push(line));
     bannerArray.push(
       <div>Type &apos;help&apos; to see the list of available commands.</div>
     );
@@ -63,14 +78,30 @@ export default function Home() {
 
   function displayFeedback(input: string) {
     const newDisplayArray = [userFeedback(userInput)];
-    Feedback[input].map((line) => newDisplayArray.push(line));
+    Storage[input].map((line) => newDisplayArray.push(line));
     setDisplayArray([...displayArray, ...newDisplayArray]);
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter') {
       handleInput();
+      setHistory([...history, userInput]);
       setUserInput('');
+      historyRef.current = 0;
+    }
+    if (history.length > 0) {
+      if (event.key === 'ArrowUp') {
+        if (history.length - 1 - historyRef.current >= 0) {
+          setUserInput(history[history.length - 1 - historyRef.current]);
+          historyRef.current = historyRef.current + 1;
+        }
+      }
+      if (event.key === 'ArrowDown') {
+        if (history.length - 1 - historyRef.current < history.length - 1) {
+          historyRef.current = historyRef.current - 1;
+          setUserInput(history[history.length - 1 - historyRef.current]);
+        }
+      }
     }
   };
 
