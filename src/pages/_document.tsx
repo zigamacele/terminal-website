@@ -4,7 +4,7 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head />
-      <body className="bg-kanagawa-sumiInk1 text-kanagawa-oldWhite font-Hack">
+      <body className="bg-kanagawa-sumiInk1 text-kanagawa-oldWhite font-Hack overflow-hidden">
         <Main />
         <NextScript />
       </body>

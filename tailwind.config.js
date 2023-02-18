@@ -24,6 +24,8 @@ module.exports = {
           waveBlue2: '#2D4F67',
           crystalBlue: '#7E9CD8',
           autumnRed: '#C34043',
+          peachRed: '#FF5D62',
+          roninYellow: '#FF9E3B',
         },
       },
     },
