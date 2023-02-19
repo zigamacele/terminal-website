@@ -4,9 +4,14 @@ import { Storage } from '../Storage/Storage';
 export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [displayArray, setDisplayArray] = useState<any[]>([]);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<string[]>([]);
   const inputRef = useRef<any>(null);
   const historyRef = useRef(0);
+
+  useEffect(() => {
+    inputRef.current.focus();
+    loadBanner();
+  }, []);
 
   function userFeedback(input?: string) {
     const user = (
@@ -38,14 +43,7 @@ export default function Home() {
   }
 
   function handleInput() {
-    const commands = [
-      'about',
-      'projects',
-      'history',
-      'github',
-      'theme',
-      'help',
-    ];
+    const commands = ['about', 'projects', 'github', 'theme', 'help'];
     if (userInput === 'history')
       return setDisplayArray([...displayArray, ...history]);
     if (userInput === 'banner') return loadBanner();
@@ -55,20 +53,15 @@ export default function Home() {
       setDisplayArray([
         ...displayArray,
         userFeedback(userInput),
-        <div className="text-kanagawa-katanaGray">
-          Command not found. For a list of commands, type 'help'
+        <div key={userInput} className="text-kanagawa-katanaGray">
+          Command not found. For a list of commands, type &apos;help&apos;
         </div>,
       ]);
   }
 
-  useEffect(() => {
-    inputRef.current.focus();
-    loadBanner();
-  }, []);
-
   function loadBanner() {
-    const bannerArray = [userFeedback()];
-
+    const bannerArray = [];
+    bannerArray.push(userFeedback(userInput));
     Storage.banner.map((line) => bannerArray.push(line));
     bannerArray.push(
       <div>Type &apos;help&apos; to see the list of available commands.</div>
@@ -78,7 +71,9 @@ export default function Home() {
 
   function displayFeedback(input: string) {
     const newDisplayArray = [userFeedback(userInput)];
-    Storage[input].map((line) => newDisplayArray.push(line));
+    Storage[input as keyof typeof Storage].map((line: any) =>
+      newDisplayArray.push(line)
+    );
     setDisplayArray([...displayArray, ...newDisplayArray]);
   }
 
@@ -89,18 +84,17 @@ export default function Home() {
       setUserInput('');
       historyRef.current = 0;
     }
-    if (history.length > 0) {
-      if (event.key === 'ArrowUp') {
-        if (history.length - 1 - historyRef.current >= 0) {
-          setUserInput(history[history.length - 1 - historyRef.current]);
-          historyRef.current = historyRef.current + 1;
-        }
+
+    if (event.key === 'ArrowUp') {
+      if (history.length - 1 - historyRef.current >= 0) {
+        setUserInput(history[history.length - 1 - historyRef.current]);
+        historyRef.current = historyRef.current + 1;
       }
-      if (event.key === 'ArrowDown') {
-        if (history.length - 1 - historyRef.current < history.length - 1) {
-          historyRef.current = historyRef.current - 1;
-          setUserInput(history[history.length - 1 - historyRef.current]);
-        }
+    }
+    if (event.key === 'ArrowDown') {
+      if (history.length - 1 - historyRef.current < history.length - 1) {
+        historyRef.current = historyRef.current - 1;
+        setUserInput(history[history.length - 1 - historyRef.current]);
       }
     }
   };
